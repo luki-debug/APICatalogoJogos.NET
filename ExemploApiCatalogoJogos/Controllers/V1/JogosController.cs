@@ -2,6 +2,7 @@
 using ApiCatalogoJogos.InputModel;
 using ApiCatalogoJogos.Services;
 using ApiCatalogoJogos.ViewModel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace ApiCatalogoJogos.Controllers.V1
         /// Não é possível retornar os jogos sem paginação
         /// </remarks>
         /// <param name="pagina">Indica qual página está sendo consultada. Mínimo 1</param>
-        /// <param name="quantidade">Indica a quantidade de reistros por página. Mínimo 1 e máximo 50</param>
+        /// <param name="quantidade">Indica a quantidade de registros por página. Mínimo 1 e máximo 50</param>
         /// <response code="200">Retorna a lista de jogos</response>
         /// <response code="204">Caso não haja jogos</response>   
         [HttpGet]
@@ -64,16 +65,17 @@ namespace ApiCatalogoJogos.Controllers.V1
         /// Inserir um jogo no catálogo
         /// </summary>
         /// <param name="jogoInputModel">Dados do jogo a ser inserido</param>
-        /// <response code="200">Cao o jogo seja inserido com sucesso</response>
+        /// <response code="201">Caso o jogo seja inserido com sucesso</response>
         /// <response code="422">Caso já exista um jogo com mesmo nome para a mesma produtora</response>   
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<JogoViewModel>> InserirJogo([FromBody] JogoInputModel jogoInputModel)
         {
             try
             {
                 var jogo = await _jogoService.Inserir(jogoInputModel);
 
-                return Ok(jogo);
+                return Created("", jogo);
             }
             catch (JogoJaCadastradoException ex)
             {
@@ -86,7 +88,7 @@ namespace ApiCatalogoJogos.Controllers.V1
         /// </summary>
         /// /// <param name="idJogo">Id do jogo a ser atualizado</param>
         /// <param name="jogoInputModel">Novos dados para atualizar o jogo indicado</param>
-        /// <response code="200">Cao o jogo seja atualizado com sucesso</response>
+        /// <response code="200">Caso o jogo seja atualizado com sucesso</response>
         /// <response code="404">Caso não exista um jogo com este Id</response>   
         [HttpPut("{idJogo:guid}")]
         public async Task<ActionResult> AtualizarJogo([FromRoute] Guid idJogo, [FromBody] JogoInputModel jogoInputModel)
